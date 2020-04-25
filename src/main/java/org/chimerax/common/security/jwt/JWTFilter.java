@@ -24,7 +24,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final int TOKEN_STARTING_POSITION = "Bearer ".length();
 
-    private JWTServiceHelper jwtServiceHelper;
+    private JWTService jwtService;
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
@@ -34,7 +34,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (header != null) {
             final String token = header.substring(TOKEN_STARTING_POSITION);
 
-            final UserDetails userDetails = jwtServiceHelper.extractUser(token);
+            final UserDetails userDetails = jwtService.extractUser(token);
 
             final JWTToken.Details details = new JWTToken.Details(request);
 

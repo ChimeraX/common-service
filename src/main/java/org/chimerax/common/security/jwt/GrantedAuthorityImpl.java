@@ -1,6 +1,7 @@
 package org.chimerax.common.security.jwt;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -9,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
  * Date: 24-Apr-20
  * Time: 9:20 PM
  */
-@Getter
+@Data
 @AllArgsConstructor
 public class GrantedAuthorityImpl implements GrantedAuthority {
 

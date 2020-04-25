@@ -1,7 +1,6 @@
 package org.chimerax.common.security.jwt;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,12 +12,16 @@ import java.util.List;
  * Time: 12:03 AM
  */
 
-@Builder
 @Getter
+@Builder
+@ToString
+@EqualsAndHashCode
 public class UserDetailsImpl implements UserDetails {
 
     private String username;
     private String password;
+
+    @Singular
     private List<GrantedAuthority> authorities;
 
     @Builder.Default

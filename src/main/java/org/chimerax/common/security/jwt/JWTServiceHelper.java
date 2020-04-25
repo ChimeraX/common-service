@@ -3,6 +3,7 @@ package org.chimerax.common.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,26 +24,19 @@ import java.util.stream.Collectors;
  * Time: 1:03 PM
  */
 
-@RequiredArgsConstructor
+@Builder
 public class JWTServiceHelper {
 
     private static final String AUTHORITIES = "auth";
 
-    @Value("${jwt.token.secret:signingKey}")
     private String signingKey;
 
-    @Value("${jwt.token.validity:1800}")
     private long validity;
 
-    @Value("${jwt.token.issuer:}")
     private String issuer;
 
     public UserDetails extractUser(final String token) {
-        return extractUser(token, true);
-    }
-
-    public UserDetails extractUser(final String token, final boolean secure) {
-        final Claims claims = extractAllClaims(token, secure);
+        final Claims claims = extractAllClaims(token);
         final String username = claims.getSubject();
         final List<String> authorityKeys = claims.get(AUTHORITIES, List.class);
         final List<GrantedAuthority> authorities = authorityKeys.stream()
@@ -54,28 +48,9 @@ public class JWTServiceHelper {
                 .build();
     }
 
-    private Claims extractAllClaims(final String token, final boolean secure) {
-        if (secure) {
-            return Jwts.parser()
-                    .setSigningKey(signingKey)
-                    .parseClaimsJws(token)
-                    .getBody();
-        } else {
-            return Jwts.parser()
-                    .parseClaimsJwt(transformJWSToJWT(token))
-                    .getBody();
-        }
-    }
-
-    private String transformJWSToJWT(final String token) {
-        return token.substring(0, token.lastIndexOf(".") + 1);
-    }
-
-    public String generateToken(final UserDetails userDetails) {
-        return generateToken(userDetails, new HashMap<>());
-    }
-
-    public String generateToken(final UserDetails userDetails, final Map<String, Object> extra) {
+    public String generateToken(final UserDetails userDetails,
+                                final Map<String, Object> headers,
+                                final Map<String, Object> extra) {
         final Instant now = Instant.now();
         final Instant expiration = now.plusSeconds(validity);
         val authorities = userDetails.getAuthorities()
@@ -83,6 +58,7 @@ public class JWTServiceHelper {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
         return Jwts.builder()
+                .setHeader(headers)
                 .claim(AUTHORITIES, authorities)
                 .addClaims(extra)
                 .setSubject(userDetails.getUsername())
@@ -91,5 +67,12 @@ public class JWTServiceHelper {
                 .setExpiration(Date.from(expiration))
                 .signWith(SignatureAlgorithm.HS256, signingKey)
                 .compact();
+    }
+
+    private Claims extractAllClaims(final String token) {
+        return Jwts.parser()
+                .setSigningKey(signingKey)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

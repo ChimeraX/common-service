@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.chimerax'
-version = '1.0.9-RELEASE'
+version = '1.2.0-RELEASE'
 sourceCompatibility = '1.8'
 
 bootJar {
