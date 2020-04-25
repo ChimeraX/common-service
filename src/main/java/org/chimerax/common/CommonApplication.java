@@ -1,13 +1,13 @@
-package org.chimerax.commonservice;
+package org.chimerax.common;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CommonServiceApplication {
+public class CommonApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CommonServiceApplication.class, args);
+        SpringApplication.run(CommonApplication.class, args);
     }
 
 }

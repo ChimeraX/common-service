@@ -1,4 +1,4 @@
-package org.chimerax.commonservice.api.repository;
+package org.chimerax.common.repository;
 
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.data.repository.NoRepositoryBean;
