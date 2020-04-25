@@ -18,7 +18,6 @@ import java.io.IOException;
  * Time: 12:46 PM
  */
 
-@Component
 @AllArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 

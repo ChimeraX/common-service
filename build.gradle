@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.chimerax'
-version = '1.0.3-RELEASE'
+version = '1.0.8-RELEASE'
 sourceCompatibility = '1.8'
 
 bootJar {
@@ -16,9 +16,13 @@ bootJar {
 
 jar {
     enabled = true
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 configurations {
+    extraLibs
     compileOnly {
         extendsFrom annotationProcessor
     }
@@ -49,8 +53,9 @@ publishing {
 }
 
 dependencies {
-    compile 'io.jsonwebtoken:jjwt:0.9.1'
-    compile 'javax.xml.bind:jaxb-api:2.3.1'
+    extraLibs 'io.jsonwebtoken:jjwt:0.9.1'
+    extraLibs 'javax.xml.bind:jaxb-api:2.3.1'
+    runtimeOnly 'com.h2database:h2'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -61,6 +66,7 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'org.springframework.security:spring-security-test'
+    configurations.compile.extendsFrom(configurations.extraLibs)
 }
 
 test {

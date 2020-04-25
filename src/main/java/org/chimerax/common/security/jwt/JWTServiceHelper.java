@@ -8,8 +8,8 @@ import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * Time: 1:03 PM
  */
 
-@Component
 @RequiredArgsConstructor
 public class JWTServiceHelper {
 
@@ -32,12 +31,18 @@ public class JWTServiceHelper {
     @Value("${jwt.token.secret:signingKey}")
     private String signingKey;
 
-
     @Value("${jwt.token.validity:1800}")
     private long validity;
 
+    @Value("${jwt.token.issuer:}")
+    private String issuer;
+
     public UserDetails extractUser(final String token) {
-        final Claims claims = extractAllClaims(token);
+        return extractUser(token, true);
+    }
+
+    public UserDetails extractUser(final String token, final boolean secure) {
+        final Claims claims = extractAllClaims(token, secure);
         final String username = claims.getSubject();
         final List<String> authorityKeys = claims.get(AUTHORITIES, List.class);
         final List<GrantedAuthority> authorities = authorityKeys.stream()
@@ -49,11 +54,21 @@ public class JWTServiceHelper {
                 .build();
     }
 
-    private Claims extractAllClaims(final String token) {
-        return Jwts.parser()
-                .setSigningKey(signingKey)
-                .parseClaimsJws(token)
-                .getBody();
+    private Claims extractAllClaims(final String token, final boolean secure) {
+        if (secure) {
+            return Jwts.parser()
+                    .setSigningKey(signingKey)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } else {
+            return Jwts.parser()
+                    .parseClaimsJwt(transformJWSToJWT(token))
+                    .getBody();
+        }
+    }
+
+    private String transformJWSToJWT(final String token) {
+        return token.substring(0, token.lastIndexOf(".") + 1);
     }
 
     public String generateToken(final UserDetails userDetails) {
@@ -71,6 +86,7 @@ public class JWTServiceHelper {
                 .claim(AUTHORITIES, authorities)
                 .addClaims(extra)
                 .setSubject(userDetails.getUsername())
+                .setIssuer(issuer)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expiration))
                 .signWith(SignatureAlgorithm.HS256, signingKey)
