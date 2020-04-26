@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.PostConstruct;
+import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,8 +29,11 @@ import java.util.stream.Collectors;
 public class JWTServiceHelper {
 
     private static final String AUTHORITIES = "auth";
+    private static final String SIGNING_KEY_ID = "kid";
 
-    private String signingKey;
+    private String signingKeyId;
+
+    private Key signingKey;
 
     private long validity;
 
@@ -51,12 +55,16 @@ public class JWTServiceHelper {
     public String generateToken(final UserDetails userDetails,
                                 final Map<String, Object> headers,
                                 final Map<String, Object> extra) {
+        headers.put(SIGNING_KEY_ID, signingKeyId);
+
         final Instant now = Instant.now();
         final Instant expiration = now.plusSeconds(validity);
+
         val authorities = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+
         return Jwts.builder()
                 .setHeader(headers)
                 .claim(AUTHORITIES, authorities)

@@ -1,16 +1,13 @@
 package org.chimerax.common.configuration;
 
-import org.chimerax.common.exception.NoSuchSecretException;
+import org.chimerax.common.exception.NoSuchKeyException;
 import org.chimerax.common.security.jwt.*;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Author: Silviu-Mihnea Cucuiet
@@ -22,14 +19,9 @@ import java.util.HashMap;
 public class AutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(JWTServiceHelperFactory.class)
     public JWTServiceHelperFactory jwtServiceHelperFactory() {
-        return new JWTServiceHelperFactory() {
-            @Override
-            public JWTServiceHelper get(String signingKeyId) throws NoSuchSecretException {
-                return getDefaultJWTServiceHelper();
-            }
-        };
+        return new JWTServiceHelperFactoryImpl();
     }
 
     @Bean
@@ -45,7 +37,6 @@ public class AutoConfiguration {
     public JWTFilter jwtFilter(final JWTService jwtService) {
         return new JWTFilter(jwtService);
     }
-
 
 
 }

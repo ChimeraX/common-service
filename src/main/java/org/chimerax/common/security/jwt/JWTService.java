@@ -12,12 +12,9 @@ import java.util.Map;
  */
 public interface JWTService {
 
-    UserDetails extractUser(final String token);
+    UserDetails extractJWSUser(final String token);
 
-    String generateToken(final UserDetails userDetails,
-                         final String signingKeyId,
-                         final Map<String, Object> headers,
-                         final Map<String, Object> extra);
+    UserDetails extractJWTUser(final String token);
 
     String generateToken(final UserDetails userDetails,
                          final Map<String, Object> headers,

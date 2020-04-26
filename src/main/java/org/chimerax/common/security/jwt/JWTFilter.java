@@ -34,7 +34,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (header != null) {
             final String token = header.substring(TOKEN_STARTING_POSITION);
 
-            final UserDetails userDetails = jwtService.extractUser(token);
+            final UserDetails userDetails = jwtService.extractJWSUser(token);
 
             final JWTToken.Details details = new JWTToken.Details(request);
 

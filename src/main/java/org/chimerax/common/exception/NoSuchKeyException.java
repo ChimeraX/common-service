@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class NoSuchSecretException extends RuntimeException {
+public class NoSuchKeyException extends RuntimeException {
 
-    public NoSuchSecretException(final String secretId) {
+    public NoSuchKeyException(final String secretId) {
         super("No such singing key: " + secretId);
     }
 }

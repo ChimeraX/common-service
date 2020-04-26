@@ -2,16 +2,12 @@ package org.chimerax.common.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
-import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Author: Silviu-Mihnea Cucuiet
@@ -23,11 +19,18 @@ import java.util.stream.Collectors;
 public class JWTServiceImpl implements JWTService {
 
     private JWTServiceHelperFactory jwtServiceHelperFactory;
-
     private static final String SIGNING_KEY_ID = "kid";
 
     @Override
-    public UserDetails extractUser(final String token) {
+    public UserDetails extractJWSUser(final String token) {
+        final String signingKeyId = extractSigningKeyId(token);
+        return jwtServiceHelperFactory
+                .get(signingKeyId)
+                .extractUser(token);
+    }
+
+    @Override
+    public UserDetails extractJWTUser(final String token) {
         final String signingKeyId = extractSigningKeyId(token);
         return jwtServiceHelperFactory
                 .get(signingKeyId)
@@ -40,19 +43,7 @@ public class JWTServiceImpl implements JWTService {
             final Map<String, Object> headers,
             final Map<String, Object> extra) {
         return jwtServiceHelperFactory
-                .getDefaultJWTServiceHelper()
-                .generateToken(userDetails, headers, extra);
-    }
-
-    @Override
-    public String generateToken(
-            final UserDetails userDetails,
-            final String signingKeyId,
-            final Map<String, Object> headers,
-            final Map<String, Object> extra) {
-        headers.put(SIGNING_KEY_ID, signingKeyId);
-        return jwtServiceHelperFactory
-                .get(signingKeyId)
+                .getRandomHelper()
                 .generateToken(userDetails, headers, extra);
     }
 
@@ -62,9 +53,17 @@ public class JWTServiceImpl implements JWTService {
 
 
     private Header extractHeader(final String token) {
+        return extractJWT(token).getHeader();
+    }
+
+    private Claims extractClaims(final String token) {
+        return extractJWT(token).getBody();
+
+    }
+
+    private Jwt<Header, Claims> extractJWT(final String token) {
         return Jwts.parser()
-                .parseClaimsJwt(transformJWSToJWT(token))
-                .getHeader();
+                .parseClaimsJwt(transformJWSToJWT(token));
 
     }
 
