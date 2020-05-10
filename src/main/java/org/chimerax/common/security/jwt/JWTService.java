@@ -19,4 +19,9 @@ public interface JWTService {
     String generateToken(final UserDetails userDetails,
                          final Map<String, Object> headers,
                          final Map<String, Object> extra);
+
+    default String generateToken(final UserDetails userDetails) {
+        return generateToken(userDetails, new HashMap<>(), new HashMap<>());
+    }
+
 }

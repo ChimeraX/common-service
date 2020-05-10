@@ -4,6 +4,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 import org.chimerax.common.exception.NoSuchKeyException;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,14 +18,7 @@ import java.util.UUID;
 
 public class JWTServiceHelperFactoryImpl extends JWTServiceHelperFactory {
 
-    private Key key = MacProvider.generateKey(SignatureAlgorithm.HS256);
-
-    private JWTServiceHelper jwtServiceHelper = JWTServiceHelper.builder()
-            .issuer(getIssuer())
-            .signingKeyId(UUID.randomUUID().toString())
-            .signingKey(key)
-            .validity(getValidity())
-            .build();
+    private JWTServiceHelper jwtServiceHelper = getDefaultServiceHelper();
 
     @Override
     public JWTServiceHelper get(String signingKeyId) throws NoSuchKeyException {
@@ -34,5 +28,21 @@ public class JWTServiceHelperFactoryImpl extends JWTServiceHelperFactory {
     @Override
     public JWTServiceHelper getRandomHelper() {
         return jwtServiceHelper;
+    }
+
+    private JWTServiceHelper getDefaultServiceHelper() {
+        return JWTServiceHelper.builder()
+                .issuer(getIssuer())
+                .signingKey(getKey())
+                .validity(getValidity())
+                .build();
+    }
+
+    private Key getKey() {
+        if (null == getSecret() || "".equals(getSecret())) {
+            return MacProvider.generateKey(SignatureAlgorithm.HS256);
+        } else {
+            return new SecretKeySpec(getSecret().getBytes(), SignatureAlgorithm.HS256.getJcaName());
+        }
     }
 }

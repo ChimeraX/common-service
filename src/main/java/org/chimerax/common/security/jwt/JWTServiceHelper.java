@@ -1,8 +1,6 @@
 package org.chimerax.common.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -13,10 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,17 +34,32 @@ public class JWTServiceHelper {
 
     private String issuer;
 
-    public UserDetails extractUser(final String token) {
-        final Claims claims = extractAllClaims(token);
+    public UserDetails extractJWSUser(final String token) {
+        return extractUser(extractJWSClaims(token));
+    }
+
+    public UserDetails extractJWTUser(String token) {
+        return extractUser(extractJWTClaims(token));
+    }
+
+    private UserDetails extractUser(final Claims claims) {
         final String username = claims.getSubject();
-        final List<String> authorityKeys = claims.get(AUTHORITIES, List.class);
-        final List<GrantedAuthority> authorities = authorityKeys.stream()
-                .map(GrantedAuthorityImpl::new)
-                .collect(Collectors.toList());
+        final List<GrantedAuthority> authorities = extractAuthorities(claims);
         return UserDetailsImpl.builder()
                 .username(username)
                 .authorities(authorities)
                 .build();
+    }
+
+    private List<GrantedAuthority> extractAuthorities(final Claims claims) {
+        final List<String> authorities = claims.get(AUTHORITIES, List.class);
+        if (authorities == null) {
+            return new ArrayList<>();
+        } else {
+            return authorities.stream()
+                    .map(GrantedAuthorityImpl::new)
+                    .collect(Collectors.toList());
+        }
     }
 
     public String generateToken(final UserDetails userDetails,
@@ -77,10 +87,22 @@ public class JWTServiceHelper {
                 .compact();
     }
 
-    private Claims extractAllClaims(final String token) {
+    private Claims extractJWSClaims(final String token) {
         return Jwts.parser()
                 .setSigningKey(signingKey)
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    private Claims extractJWTClaims(final String token) {
+        return Jwts.parser()
+                .parseClaimsJwt(transformJWSToJWT(token))
+                .getBody();
+
+    }
+
+    private String transformJWSToJWT(final String token) {
+        return token.substring(0, token.lastIndexOf(".") + 1);
+    }
+
 }

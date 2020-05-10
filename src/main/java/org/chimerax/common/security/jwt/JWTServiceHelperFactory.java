@@ -22,6 +22,9 @@ public abstract class JWTServiceHelperFactory {
     @Value("${jwt.token.issuer:}")
     private String issuer;
 
+    @Value("${jwt.token.secret:}")
+    private String secret;
+
     public abstract JWTServiceHelper get(final String signingKeyId) throws NoSuchKeyException;
 
     public abstract JWTServiceHelper getRandomHelper();

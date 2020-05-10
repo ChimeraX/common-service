@@ -26,15 +26,14 @@ public class JWTServiceImpl implements JWTService {
         final String signingKeyId = extractSigningKeyId(token);
         return jwtServiceHelperFactory
                 .get(signingKeyId)
-                .extractUser(token);
+                .extractJWSUser(token);
     }
 
     @Override
     public UserDetails extractJWTUser(final String token) {
-        final String signingKeyId = extractSigningKeyId(token);
         return jwtServiceHelperFactory
-                .get(signingKeyId)
-                .extractUser(token);
+                .getRandomHelper()
+                .extractJWTUser(token);
     }
 
     @Override
