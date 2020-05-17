@@ -1,6 +1,8 @@
 package org.chimerax.common.security.jwt;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.chimerax.common.exception.NoSuchKeyException;
 import org.springframework.beans.factory.annotation.Value;
 

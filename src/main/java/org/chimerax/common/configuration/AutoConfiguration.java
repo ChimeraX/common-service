@@ -1,13 +1,10 @@
 package org.chimerax.common.configuration;
 
-import org.chimerax.common.exception.NoSuchKeyException;
 import org.chimerax.common.security.jwt.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.UUID;
 
 /**
  * Author: Silviu-Mihnea Cucuiet

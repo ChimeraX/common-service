@@ -1,17 +1,19 @@
 package org.chimerax.common.security.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.annotation.PostConstruct;
 import java.security.Key;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -62,18 +64,29 @@ public class JWTServiceHelper {
         }
     }
 
+    private List<String> extractAuthorities(final UserDetails userDetails) {
+        val authorities = userDetails.getAuthorities();
+        if (authorities == null) {
+            return new ArrayList<>();
+        } else {
+            return authorities
+                    .stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+        }
+    }
+
     public String generateToken(final UserDetails userDetails,
                                 final Map<String, Object> headers,
                                 final Map<String, Object> extra) {
-        headers.put(SIGNING_KEY_ID, signingKeyId);
+        if (signingKeyId != null && !"".equals(signingKeyId)) {
+            headers.put(SIGNING_KEY_ID, signingKeyId);
+        }
 
         final Instant now = Instant.now();
         final Instant expiration = now.plusSeconds(validity);
 
-        val authorities = userDetails.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+        val authorities = extractAuthorities(userDetails);
 
         return Jwts.builder()
                 .setHeader(headers)

@@ -2,7 +2,6 @@ package org.chimerax.common.security.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
