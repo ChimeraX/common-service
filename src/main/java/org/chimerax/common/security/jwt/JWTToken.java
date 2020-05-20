@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
@@ -27,17 +28,17 @@ public class JWTToken implements Authentication {
     }
 
     @Override
-    public Object getCredentials() {
+    public String getCredentials() {
         return userDetails.getUsername();
     }
 
     @Override
-    public Object getDetails() {
+    public Details getDetails() {
         return details;
     }
 
     @Override
-    public Object getPrincipal() {
+    public UserDetails getPrincipal() {
         return userDetails;
     }
 
@@ -54,9 +55,16 @@ public class JWTToken implements Authentication {
         return userDetails.getUsername();
     }
 
-    @Data
     @AllArgsConstructor
     public static class Details {
         private HttpServletRequest request;
+
+        public String getHeader(String name) {
+            return request.getHeader(name);
+        }
+
+        public Cookie[] getCookies() {
+            return request.getCookies();
+        }
     }
 }

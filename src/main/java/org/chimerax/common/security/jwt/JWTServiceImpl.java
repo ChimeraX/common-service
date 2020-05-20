@@ -31,9 +31,7 @@ public class JWTServiceImpl implements JWTService {
 
     @Override
     public UserDetails extractJWTUser(final String token) {
-        return jwtServiceHelperFactory
-                .getRandomHelper()
-                .extractJWTUser(token);
+        return JWTServiceHelper.extractJWTUser(token);
     }
 
     @Override

@@ -40,11 +40,11 @@ public class JWTServiceHelper {
         return extractUser(extractJWSClaims(token));
     }
 
-    public UserDetails extractJWTUser(String token) {
+    public static UserDetails extractJWTUser(String token) {
         return extractUser(extractJWTClaims(token));
     }
 
-    private UserDetails extractUser(final Claims claims) {
+    private static UserDetails extractUser(final Claims claims) {
         final String username = claims.getSubject();
         final List<GrantedAuthority> authorities = extractAuthorities(claims);
         return UserDetailsImpl.builder()
@@ -53,7 +53,7 @@ public class JWTServiceHelper {
                 .build();
     }
 
-    private List<GrantedAuthority> extractAuthorities(final Claims claims) {
+    private static List<GrantedAuthority> extractAuthorities(final Claims claims) {
         final List<String> authorities = claims.get(AUTHORITIES, List.class);
         if (authorities == null) {
             return new ArrayList<>();
@@ -107,14 +107,14 @@ public class JWTServiceHelper {
                 .getBody();
     }
 
-    private Claims extractJWTClaims(final String token) {
+    private static Claims extractJWTClaims(final String token) {
         return Jwts.parser()
                 .parseClaimsJwt(transformJWSToJWT(token))
                 .getBody();
 
     }
 
-    private String transformJWSToJWT(final String token) {
+    private static String transformJWSToJWT(final String token) {
         return token.substring(0, token.lastIndexOf(".") + 1);
     }
 
